@@ -21,7 +21,40 @@
 <!-- Give credit (and a link) to other people or resources that helped you build this application. -->
 -->
 
-Number and name of feature: 
+Number and name of feature: Setup
+
+Estimate of time needed to complete: 30min
+
+Start time: 5pm
+
+Finish time: 6:30pm
+
+Actual time needed to complete: 1.5 hrs
+
+
+Number and name of feature: Locations
+
+Estimate of time needed to complete: 1hr
+
+Start time: _____
+
+Finish time: _____
+
+Actual time needed to complete: _____
+
+
+Number and name of feature: ________________________________
+
+Estimate of time needed to complete: _____
+
+Start time: _____
+
+Finish time: _____
+
+Actual time needed to complete: _____
+
+
+Number and name of feature: ________________________________
 
 Estimate of time needed to complete: _____
 
