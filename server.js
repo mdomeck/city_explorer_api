@@ -22,41 +22,30 @@ let weatherArr = [];
 
 //=============LOCATION========================//
 app.get('/location', (request, response) => {
-  try{
+  
   let city = request.query.city;
   let geoData = require('./data/location.json');
-  // let url = `https://us1.locationiq.com/v1/search.php`
+  let url = `https://us1.locationiq.com/v1/search.php`
 
-  //removed to add below`?key=${process.env.GEOCODE_API_KEY}&q=${city}&format=json`
+  let queryParams = {
+    key: process.env.GEOCODE_API_KEY,
+    q: city,
+    format: 'json',
+    limit: 1
+  }
 
-  // let queryParams = {
-  //   key: process.env.GEOCODE_API_KEY,
-  //   q: city,
-  //   format: 'json',
-  //   limit: 1
-  // }
-
-  // superagent.get(url)
-  // .query(queryParams)
-  // .then(resultsFromSuperagent => {
-  //   console.log('these are my results from superagent:', resultsFromSuperagent.body);
-  // let geoData = resultsFromSuperagent.body;
-  // const obj = new Location(city, geoData);
-  // response.status(200).send(obj);
-  // }).catch((error) => { finish moving console log up
-      // }
-  
-const obj = new Location(city, geoData);
-
+  superagent.get(url)
+  .query(queryParams)
+  .then(resultsFromSuperagent => {
+    console.log('these are my results from superagent:', resultsFromSuperagent.body);
+  let geoData = resultsFromSuperagent.body;
+  const obj = new Location(city, geoData);
   response.status(200).send(obj);
-
-} catch(error)
-{
-  console.log('ERROR', error);
-  response.status(500).send('Sorry, somehing went wrong');
+  }).catch((error) => { 
+    console.log('ERROR', error);
+    response.status(500).send('Sorry, somehing went wrong');
+    })
 }
-
-});
 
 function Location(location, geoData) {
   this.search_query = location;
