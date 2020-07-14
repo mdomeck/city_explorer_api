@@ -24,14 +24,14 @@ app.get('/location', (request, response) => {
   let city = request.query.city;
   let GeoData = require('./data/location.json');
   
-new Location(city, geoData);
+const obj = new Location(city, geoData);
 
-  let obj = {
-    search_query: city,
-    formatted_query: geoData[0].display_name,
-    latitude: geoData[0].lat,
-    longitude: geoData[0].lon
-  }
+  // let obj = {
+  //   search_query: city,
+  //   formatted_query: geoData[0].display_name,
+  //   latitude: geoData[0].lat,
+  //   longitude: geoData[0].lon
+  // }
   response.send(obj);
 })
 
