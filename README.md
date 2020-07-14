@@ -54,9 +54,9 @@ Finish time: 9:15pm
 Actual time needed to complete: 45min
 
 
-Number and name of feature: ________________________________
+Number and name of feature: Errors
 
-Estimate of time needed to complete: _____
+Estimate of time needed to complete: 30min
 
 Start time: _____
 
