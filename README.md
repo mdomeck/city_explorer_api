@@ -36,18 +36,18 @@ Number and name of feature: Locations
 
 Estimate of time needed to complete: 1hr
 
-Start time: _____
+Start time: 6:45pm
 
-Finish time: _____
+Finish time: 8:30pm
 
-Actual time needed to complete: _____
+Actual time needed to complete: 1.75hrs
 
 
-Number and name of feature: ________________________________
+Number and name of feature: Weather
 
-Estimate of time needed to complete: _____
+Estimate of time needed to complete: 1hr
 
-Start time: _____
+Start time: 830pm
 
 Finish time: _____
 
