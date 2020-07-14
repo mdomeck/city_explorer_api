@@ -9,7 +9,9 @@ require('dotenv').config(); //privacy library
 
 const cors = require('cors'); //really bad body guard lets anyone talk to server
 
-// const { response, request } = require('express');
+const superagent = require('superagent'); //gets stuff from API
+const { json } = require('express');
+
 
 app.use(cors()); // allow all clients into our server
 
@@ -23,6 +25,26 @@ app.get('/location', (request, response) => {
   try{
   let city = request.query.city;
   let geoData = require('./data/location.json');
+  // let url = `https://us1.locationiq.com/v1/search.php`
+
+  //removed to add below`?key=${process.env.GEOCODE_API_KEY}&q=${city}&format=json`
+
+  // let queryParams = {
+  //   key: process.env.GEOCODE_API_KEY,
+  //   q: city,
+  //   format: 'json',
+  //   limit: 1
+  // }
+
+  // superagent.get(url)
+  // .query(queryParams)
+  // .then(resultsFromSuperagent => {
+  //   console.log('these are my results from superagent:', resultsFromSuperagent.body);
+  // let geoData = resultsFromSuperagent.body;
+  // const obj = new Location(city, geoData);
+  // response.status(200).send(obj);
+  // }).catch((error) => { finish moving console log up
+      // }
   
 const obj = new Location(city, geoData);
 
@@ -47,6 +69,8 @@ function Location(location, geoData) {
 app.get('/weather', (request, response) => {
   let weatherInfo = require('./data/weather.json')
   
+
+  //use a .map not a forEach
   weatherInfo['data'].forEach(date => {
     weatherArr.push(new Weather(date));
   })
