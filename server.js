@@ -58,7 +58,8 @@ function handleWeather(request, response) {
   let queryParams = {
     key: process.env.WEATHER_API_KEY,
     lat: request.query.latitude,
-    lon: request.query.longitude
+    lon: request.query.longitude,
+    days: 8
 
   }
   superagent.get(url)
@@ -78,8 +79,15 @@ function handleWeather(request, response) {
 
 function Weather(obj) {
   this.forecast = obj.weather.description;
-  this.time = new Date(obj.datetime).toDateString(); // datetime or valid_date???
+  this.time = new Date(obj.datetime).toDateString();
 }
+
+
+//=================TRAILS=========================//
+
+
+
+
 
 
 app.use('*', (request, response) => {
