@@ -52,8 +52,8 @@ function Location(location, geoData) {
 app.get('/weather', handleWeather);
 
 function handleWeather(request, response) {
-  
-   let url = `https://api.weatherbit.io/v2.0/forecast/daily`
+
+  let url = `https://api.weatherbit.io/v2.0/forecast/daily`
 
   let queryParams = {
     key: process.env.WEATHER_API_KEY,
@@ -65,7 +65,6 @@ function handleWeather(request, response) {
   superagent.get(url)
     .query(queryParams)
     .then(resultsFromSuperagent => {
-      console.log('these are my results from superagent:', resultsFromSuperagent.body);
       let resultsBody = resultsFromSuperagent.body;
       let weatherArr = resultsBody['data'].map(date => {
         return new Weather(date);
@@ -74,7 +73,7 @@ function handleWeather(request, response) {
     }).catch((error) => {
       console.log('ERROR', error);
       response.status(500).send('Sorry, something went wrong');
-});
+    });
 }
 
 function Weather(obj) {
@@ -82,10 +81,48 @@ function Weather(obj) {
   this.time = new Date(obj.datetime).toDateString();
 }
 
-
 //=================TRAILS=========================//
+app.get('/trails', handleTrails);
+
+function handleTrails(request, response) {
 
 
+  let url = `https://www.hikingproject.com/data/get-trails?lat=40.0274&lon=-105.2519&maxDistance=10&key=200837080-bc53e8202f22199`
+
+  let queryParams = {
+    key: process.env.TRAILS_API_KEY,
+    lat: request.query.latitude,
+    lon: request.query.longitude,
+    maxResults: 10
+  }
+
+  superagent.get(url)
+    .query(queryParams)
+    .then(resultsFromSuperagent => {
+    console.log('these are my results from superagent:', resultsFromSuperagent.body);
+    let resultsBody = resultsFromSuperagent.body;
+    let trailsArr = resultsBody['trails'].map(route => {
+      return new trailsArr(route);
+    })
+    response.status(200).send(trailsArr);
+  }).catch ((error) => {
+    console.log('ERROR', error);
+    response.status(500).send('Sorry, something went wrong');
+  });
+}
+
+function Trails(obj) {
+  this.name = obj.name
+  this.location = obj.location
+  this.length = obj.length
+  this.stars = obj.stars
+  this.stars_votes = obj.starVotes
+  this.summary = obj.summary
+  this.trail_url = obj.url
+  this.conditions = obj.conditionDetails
+  this.conditions_date = obj.conditionDate.substring(0, 10)
+  this.conditions_time = obj.conditionDate, substring(11, 19)
+}
 
 
 
