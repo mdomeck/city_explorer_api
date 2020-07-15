@@ -86,11 +86,10 @@ app.get('/trails', handleTrails);
 
 function handleTrails(request, response) {
 
-
-  let url = `https://www.hikingproject.com/data/get-trails?lat=40.0274&lon=-105.2519&maxDistance=10&key=200837080-bc53e8202f22199`
+  let url = `https://www.hikingproject.com/data/get-trails`
 
   let queryParams = {
-    key: process.env.TRAILS_API_KEY,
+    key: process.env.TRAIL_API_KEY,
     lat: request.query.latitude,
     lon: request.query.longitude,
     maxResults: 10
@@ -99,16 +98,15 @@ function handleTrails(request, response) {
   superagent.get(url)
     .query(queryParams)
     .then(resultsFromSuperagent => {
-    console.log('these are my results from superagent:', resultsFromSuperagent.body);
-    let resultsBody = resultsFromSuperagent.body;
-    let trailsArr = resultsBody['trails'].map(route => {
-      return new trailsArr(route);
-    })
-    response.status(200).send(trailsArr);
-  }).catch ((error) => {
-    console.log('ERROR', error);
-    response.status(500).send('Sorry, something went wrong');
-  });
+      console.log('these are my results from superagent:', resultsFromSuperagent.body);
+      let trailsArr = resultsFromSuperagent.body['trails'].map(route => {
+        return new Trails(route);
+      })
+      response.status(200).send(trailsArr);
+    }).catch((error) => {
+      console.log('ERROR', error);
+      response.status(500).send('Sorry, something went wrong');
+    });
 }
 
 function Trails(obj) {
@@ -121,10 +119,8 @@ function Trails(obj) {
   this.trail_url = obj.url
   this.conditions = obj.conditionDetails
   this.conditions_date = obj.conditionDate.substring(0, 10)
-  this.conditions_time = obj.conditionDate, substring(11, 19)
+  this.conditions_time = obj.conditionDate.substring(11, 19)
 }
-
-
 
 
 app.use('*', (request, response) => {
