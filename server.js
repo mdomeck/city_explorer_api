@@ -2,16 +2,27 @@
 
 // libraries
 const express = require('express');
+const app = express(); //server library
 const cors = require('cors'); //really bad body guard lets anyone talk to server
+app.use(cors()); // allow all clients into our server
 const superagent = require('superagent'); //gets stuff from API
 require('dotenv').config(); //privacy library
 
-const app = express(); //server library
-app.use(cors()); // allow all clients into our server
+// const pg = require('pg');
+// const client = new pg.Client(process.env.DATABASE_URL);
+// client.on('error', err =>{
+//   console.log('ERROR'. err);
+// });
+
+// client.connect()
+// .then(() => {
+//   app.listen(PORT, () => console.log(`listening on ${PORT}`));
+// }).catch(err => console.log('ERROR'. err));
 
 
 // global variables
 const PORT = process.env.PORT || 3001;
+ 
 
 //=============LOCATION========================//
 app.get('/location', handleLocation);
@@ -128,6 +139,4 @@ app.use('*', (request, response) => {
 });
 
 
-app.listen(PORT, () => {
-  console.log(`listening on ${PORT}`)
-});
+app.listen(PORT, () => console.log(`listening on ${PORT}`));
