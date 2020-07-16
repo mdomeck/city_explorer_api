@@ -29,15 +29,15 @@ app.get('/location', handleLocation);
 function handleLocation(request, response) {
   let city = request.query.city;
 
-  let sql = 'SELECT * FROM locations WHERE search_query=$1;';
-  let safeValues = [city];
+  // let sql = 'SELECT * FROM locations WHERE search_query=$1;';
+  // let safeValues = [city];
 
-  client.query(sql, safeValues)
-    .then(resultsFromPostgres => {
-      if (resultsFromPostgres.rowCount) {
-        let locationOject = resultsFromPostgres.rows[0];
-        response.status(200).send(locationOject);
-      } else {
+  // client.query(sql, safeValues)
+  //   .then(resultsFromPostgres => {
+  //     if (resultsFromPostgres.rowCount) {
+  //       let locationOject = resultsFromPostgres.rows[0];
+  //       response.status(200).send(locationOject);
+  //     } else {
 
         let url = `https://us1.locationiq.com/v1/search.php`;
 
@@ -66,9 +66,7 @@ function handleLocation(request, response) {
             response.status(500).send('Sorry, something went wrong');
           });
       }
-    })
-};
-
+    
 function Location(location, geoData) {
   this.search_query = location;
   this.formatted_query = geoData[0].display_name;
@@ -152,7 +150,42 @@ function Trails(obj) {
 }
 
 
-//============Restaurant========================//
+//============Movies========================//
+
+app.get('/movies', handleMovies);
+
+function handleMovies(request, response){
+  let url = `https://api.themoviedb.org/3/search/movie`
+
+  let queryParams = {
+    api_key: process.env.MOVIE_API_KEY,
+    query: request.query.search_query,
+  }
+  superagent.get(url)
+    .query(queryParams)
+    .then(resultsFromSuperagent => {
+      console.log('results from superagent', resultsFromSuperagent.body);
+      let moviesArr = resultsFromSuperagent.body.results.map(route => {
+        return new Movies(route);
+      })
+      response.status(200).send(moviesArr);
+    }).catch((error) => {
+      console.log('ERROR', error);
+      response.status(500).send('Sorry, something went wrong');
+    });
+}
+
+function Movies(obj) {
+  this.title = obj.original_title
+  this.overview = obj.overview
+  this.average_votes = obj.vote_average
+  this.total_votes = obj.vote_count
+  this.image_url = `https://image.tmdb.org/t/p/original${obj.poster_path}`
+  this.popularity = obj.popularity
+  this.released_on = obj.release_date
+}
+
+//======================YELP========================//
 
 // app.get('/restaurants', handleRestaurants);
 
@@ -168,10 +201,10 @@ app.use('*', (request, response) => {
   response.status(404).send('page not found');
 });
 
-client.connect()
-  .then(() => {
-    app.listen(PORT, () => console.log(`listening on ${PORT}`));
-  }).catch(err => console.log('ERROR', err));
+// client.connect()
+//   .then(() => {
+//     app.listen(PORT, () => console.log(`listening on ${PORT}`));
+//   }).catch(err => console.log('ERROR', err));
 
 
-// app.listen(PORT, () => console.log(`listening on ${PORT}`));
+app.listen(PORT, () => console.log(`listening on ${PORT}`));
