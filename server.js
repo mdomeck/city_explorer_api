@@ -152,7 +152,43 @@ function Trails(obj) {
 }
 
 
-//============Restaurant========================//
+//============Movies========================//
+
+app.get('/movies', handleMovies);
+
+function handleMovies(request, response){
+  let url = `https://api.themoviedb.org/3/movie/550`
+
+  let queryParams = {
+    key: process.env.MOVIE_API_KEY,
+    lat: request.query.latitude,
+    lon: request.query.longitude,
+  }
+  superagent.get(url)
+    .query(queryParams)
+    .then(resultsFromSuperagent => {
+      let moviesArr = resultsFromSuperagent.body['movies'].map(route => {
+        return new Movies(route);
+      })
+      response.status(200).send(moviesArr);
+    }).catch((error) => {
+      console.log('ERROR', error);
+      response.status(500).send('Sorry, something went wrong');
+    });
+}
+
+
+function Movies(obj) {
+  this.title = obj.original_title
+  this.overview = obj.overview
+  this.average_votes = obj.vote_average
+  this.total_votes = obj.vote_count
+  this.image_url = obj.poster_path
+  this.popularity = obj.popularuty
+  this.released_on = obj.release_date
+}
+
+
 
 // app.get('/restaurants', handleRestaurants);
 
