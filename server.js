@@ -9,7 +9,7 @@ const superagent = require('superagent'); //gets stuff from API
 require('dotenv').config(); //privacy library
 
 const pg = require('pg');
-const client = new pg.Client(process.env.WINDOWS_DATABASE_URL);
+const client = new pg.Client(process.env.DATABASE_URL);
 client.on('error', err => {
   console.log('ERROR', err);
 });
@@ -18,30 +18,16 @@ client.on('error', err => {
 // global variables
 const PORT = process.env.PORT || 3001;
 
-//================add to database===============//
 
-function showData(city) {
+
+
   
-  let sql = 'SELECT * FROM city_explorer;';
-  client.query(sql)
-  .then(resultsFromPostgres => {
-    let places = resultsFromPostgres.rows;
-    console.log('places', places);
-  }).catch(err => console.log(err));
-}
 
 //=============LOCATION========================//
 app.get('/location', handleLocation);
 
 function handleLocation(request, response) {
   let city = request.query.city;
-  showData(city);
-  
-
-
-  else
-  // let sql = 'INSERT INTO city_explorer (city) VALUES ($1) RETURNING id;';
-  // let safeValues = [city];
   let url = `https://us1.locationiq.com/v1/search.php`;
   
   let queryParams = {
@@ -49,21 +35,36 @@ function handleLocation(request, response) {
     q: city,
     format: 'json',
     limit: 1
-  }
-  
-  superagent.get(url)
-  .query(queryParams)
-  .then(resultsFromSuperagent => {
-    let geoData = resultsFromSuperagent.body;
-    const obj = new Location(city, geoData);
+  };
 
-    adder(obj); 
-    response.status(200).send(obj);
+  let sql = 'SELECT * FROM locations WHERE search_query=$1;';
+  let safeValues = [city];
+  client.query(sql, safeValues)
+  .then(resultsFromPostgres => {
+    if(resultsFromPostgres.rowCount){
+      let locationOject = resultsFromPostgres.rows[0];
+      response.status(200).send(locationOject);
+    } else {
+      
+      superagent.get(url)
+      .query(queryParams)
+      .then(resultsFromSuperagent => {
+        let geoData = resultsFromSuperagent.body;
+        const obj = new Location(city, geoData);
     
-  }).catch((error) => {
-    console.log('ERROR', error);
-    response.status(500).send('Sorry, something went wrong');
-  });
+       let sql = 'INSERT INTO location (search_query, formatted_query, latitude, longitude) VALUES ($1, $2, $3, $4);';
+
+       let safeValues = [obj.search_query, obj.formatted_query, obj.latitude, obj.longitude];
+
+       client.query(sql, safeValues);
+
+        response.status(200).send(obj);
+      }).catch((error) => {
+        console.log('ERROR', error);
+        response.status(500).send('Sorry, something went wrong');
+      });
+    }
+  })
 };
 
 function Location(location, geoData) {
