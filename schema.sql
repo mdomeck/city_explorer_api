@@ -2,10 +2,10 @@ DROP TABLE IF EXISTS city_explorer;
 
 CREATE TABLE city_explorer (
   id SERIAL PRIMARY KEY,
-  first_name VARCHAR(255),
-  last_name VARCHAR(255),
-  city VARCHAR(255)
+  search_query VARCHAR(255),
+  formatted_query VARCHAR(255),
+  latitude NUMERIC(10,7),
+  longitude NUMERIC(10,7)
 );
 
-INSERT INTO city_explorer (first_name, last_name) VALUES ('Meghan', 'Domeck');
-SELECT * FROM city_explorer;
+INSERT INTO cities (search_query, formatted_query, latitude, longitude) VALUES ('Seattle', 'Seattle, King County, Washington, USA', '47.6038321', '-122.4400625')

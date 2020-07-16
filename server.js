@@ -9,22 +9,39 @@ const superagent = require('superagent'); //gets stuff from API
 require('dotenv').config(); //privacy library
 
 const pg = require('pg');
-const client = new pg.Client(process.env.DATABASE_URL);
-client.on('error', err =>{
-  console.log('ERROR'. err);
+const client = new pg.Client(process.env.WINDOWS_DATABASE_URL);
+client.on('error', err => {
+  console.log('ERROR', err);
 });
 
 
 // global variables
 const PORT = process.env.PORT || 3001;
 
+//================add to database===============//
+
+function showData(city) {
+  
+  let sql = 'SELECT * FROM city_explorer;';
+  client.query(sql)
+  .then(resultsFromPostgres => {
+    let places = resultsFromPostgres.rows;
+    console.log('places', places);
+  }).catch(err => console.log(err));
+}
 
 //=============LOCATION========================//
 app.get('/location', handleLocation);
 
 function handleLocation(request, response) {
-  
   let city = request.query.city;
+  showData(city);
+  
+
+
+  else
+  // let sql = 'INSERT INTO city_explorer (city) VALUES ($1) RETURNING id;';
+  // let safeValues = [city];
   let url = `https://us1.locationiq.com/v1/search.php`;
   
   let queryParams = {
@@ -39,7 +56,10 @@ function handleLocation(request, response) {
   .then(resultsFromSuperagent => {
     let geoData = resultsFromSuperagent.body;
     const obj = new Location(city, geoData);
+
+    adder(obj); 
     response.status(200).send(obj);
+    
   }).catch((error) => {
     console.log('ERROR', error);
     response.status(500).send('Sorry, something went wrong');
@@ -82,6 +102,7 @@ function handleWeather(request, response) {
   });
 }
 
+
 function Weather(obj) {
   this.forecast = obj.weather.description;
   this.time = new Date(obj.datetime).toDateString();
@@ -103,17 +124,16 @@ function handleTrails(request, response) {
   
   superagent.get(url)
   .query(queryParams)
-  .then(resultsFromSuperagent => {
-    console.log('these are my results from superagent:', resultsFromSuperagent.body);
-    let trailsArr = resultsFromSuperagent.body['trails'].map(route => {
-      return new Trails(route);
-    })
-    response.status(200).send(trailsArr);
-  }).catch((error) => {
-    console.log('ERROR', error);
-    response.status(500).send('Sorry, something went wrong');
-  });
-}
+    .then(resultsFromSuperagent => {
+      let trailsArr = resultsFromSuperagent.body['trails'].map(route => {
+        return new Trails(route);
+      })
+      response.status(200).send(trailsArr);
+    }).catch((error) => {
+      console.log('ERROR', error);
+      response.status(500).send('Sorry, something went wrong');
+    });
+  }
 
 function Trails(obj) {
   this.name = obj.name
@@ -128,15 +148,14 @@ function Trails(obj) {
   this.conditions_time = obj.conditionDate.substring(11, 19)
 }
 
-
-client.connect()
-.then(() => {
-  app.listen(PORT, () => console.log(`listening on ${PORT}`));
-}).catch(err => console.log('ERROR'. err));
-
 app.use('*', (request, response) => {
   response.status(404).send('page not found');
 });
 
+client.connect()
+  .then(() => {
+    app.listen(PORT, () => console.log(`listening on ${PORT}`));
+  }).catch(err => console.log('ERROR', err));
 
-app.listen(PORT, () => console.log(`listening on ${PORT}`));
+
+// app.listen(PORT, () => console.log(`listening on ${PORT}`));
