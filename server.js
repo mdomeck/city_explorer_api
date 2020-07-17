@@ -19,13 +19,19 @@ client.on('error', err => {
 // global variables
 const PORT = process.env.PORT || 3001;
 
+app.get('/location', handleLocation);
+app.get('/weather', handleWeather);
+app.get('/trails', handleTrails);
+app.get('/movies', handleMovies);
+app.get('/yelp', handleYelp);
+
+
 // app.get('/bananas', (request, response) => {
 //   response.send('we are alive');
 // })
 
 
 //=============LOCATION========================//
-app.get('/location', handleLocation);
 
 function handleLocation(request, response) {
   let city = request.query.city;
@@ -81,8 +87,6 @@ function Location(location, geoData) {
 
 //================WEATHER===================//
 
-app.get('/weather', handleWeather);
-
 function handleWeather(request, response) {
 
   let url = `https://api.weatherbit.io/v2.0/forecast/daily`
@@ -115,7 +119,6 @@ function Weather(obj) {
 }
 
 //=================TRAILS=========================//
-app.get('/trails', handleTrails);
 
 function handleTrails(request, response) {
 
@@ -157,8 +160,6 @@ function Trails(obj) {
 
 //============Movies========================//
 
-app.get('/movies', handleMovies);
-
 function handleMovies(request, response) {
   let url = `https://api.themoviedb.org/3/search/movie`
 
@@ -191,8 +192,6 @@ function Movies(obj) {
 }
 
 //======================YELP========================//
-
-app.get('/yelp', handleYelp);
 
 function handleYelp(request, response) {
 
