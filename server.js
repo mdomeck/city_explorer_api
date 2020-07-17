@@ -9,6 +9,7 @@ const superagent = require('superagent'); //gets stuff from API
 require('dotenv').config(); //privacy library
 
 const pg = require('pg');
+const { request } = require('express');
 const client = new pg.Client(process.env.DATABASE_URL);
 client.on('error', err => {
   console.log('ERROR', err);
@@ -29,15 +30,15 @@ app.get('/location', handleLocation);
 function handleLocation(request, response) {
   let city = request.query.city;
 
-  // let sql = 'SELECT * FROM locations WHERE search_query=$1;';
-  // let safeValues = [city];
+  let sql = 'SELECT * FROM locations WHERE search_query=$1;';
+  let safeValues = [city];
 
-  // client.query(sql, safeValues)
-  //   .then(resultsFromPostgres => {
-  //     if (resultsFromPostgres.rowCount) {
-  //       let locationOject = resultsFromPostgres.rows[0];
-  //       response.status(200).send(locationOject);
-  //     } else {
+  client.query(sql, safeValues)
+    .then(resultsFromPostgres => {
+      if (resultsFromPostgres.rowCount) {
+        let locationOject = resultsFromPostgres.rows[0];
+        response.status(200).send(locationOject);
+      } else {
 
         let url = `https://us1.locationiq.com/v1/search.php`;
 
@@ -54,7 +55,7 @@ function handleLocation(request, response) {
             let geoData = resultsFromSuperagent.body;
             const obj = new Location(city, geoData);
 
-            let sql = 'INSERT INTO location (search_query, formatted_query, latitude, longitude) VALUES ($1, $2, $3, $4);';
+            let sql = 'INSERT INTO locations (search_query, formatted_query, latitude, longitude) VALUES ($1, $2, $3, $4);';
 
             let safeValues = [obj.search_query, obj.formatted_query, obj.latitude, obj.longitude];
 
@@ -66,7 +67,11 @@ function handleLocation(request, response) {
             response.status(500).send('Sorry, something went wrong');
           });
       }
-    
+    })
+}
+
+
+
 function Location(location, geoData) {
   this.search_query = location;
   this.formatted_query = geoData[0].display_name;
@@ -154,7 +159,7 @@ function Trails(obj) {
 
 app.get('/movies', handleMovies);
 
-function handleMovies(request, response){
+function handleMovies(request, response) {
   let url = `https://api.themoviedb.org/3/search/movie`
 
   let queryParams = {
@@ -187,24 +192,54 @@ function Movies(obj) {
 
 //======================YELP========================//
 
-// app.get('/restaurants', handleRestaurants);
+app.get('/yelp', handleYelp);
 
-// function handleRestaurants(request,response){
-//   id:
-//   search_query
+function handleYelp(request, response) {
 
-// }
+  const page = request.query.page || 1;
+  const numPerPage = 5;
+  const start = ((page - 1) * numPerPage);
 
+  const url = `https://api.yelp.com/v3/businesses/search`
 
+  const queryParams = {
+    latitude: request.query.latitude,
+    longitude: request.query.longitude,
+    term: 'restaurant',
+    limit: numPerPage,
+    offset: start,
+  }
+
+  superagent.get(url)
+    .set({ 'Authorization': `Bearer ${process.env.YELP_API_KEY}` })
+    .query(queryParams)
+    .then(results => {
+      const yelpArr = results.body.businesses;
+      console.log('results from Yelp Array', yelpArr);
+      const yelpData = yelpArr.map(eatery => new YelpData(eatery));
+      response.status(200).send(yelpData);
+    }).catch((error) => {
+      console.log('ERROR', error);
+      response.status(500).send('Sorry, something went wrong');
+    });
+}
+
+function YelpData(obj) {
+  this.name = obj.name
+  this.image_url = obj.image_url
+  this.price = obj.price
+  this.rating = obj.rating
+  this.url = obj.url
+}
 
 app.use('*', (request, response) => {
   response.status(404).send('page not found');
 });
 
-// client.connect()
-//   .then(() => {
-//     app.listen(PORT, () => console.log(`listening on ${PORT}`));
-//   }).catch(err => console.log('ERROR', err));
+client.connect()
+  .then(() => {
+    app.listen(PORT, () => console.log(`listening on ${PORT}`));
+  }).catch(err => console.log('ERROR', err));
 
 
-app.listen(PORT, () => console.log(`listening on ${PORT}`));
+// app.listen(PORT, () => console.log(`listening on ${PORT}`));
